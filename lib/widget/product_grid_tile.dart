@@ -150,7 +150,7 @@ class ProductGridTile extends StatelessWidget {
                           '$SERVER_URL${product.images!.first.url ?? ''}'))
                   : 'https://via.placeholder.com/150', // Default placeholder
               fit: BoxFit.cover,
-              scale: 3.0,
+              scale: 2.2,
             ),
           ),
         ),
