@@ -48,7 +48,7 @@ class CartListSection extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: Image.network(
                           cartItem.productImages.safeElementAt(0) == null
-                              ? 'https://miro.medium.com/v2/resize:fit:540/format:webp/1*Tu5jffgXlt_aP-uVPKqKng.gif' // Placeholder image URL
+                              ? '' // Placeholder image URL
                               : Uri.encodeFull(
                                   '$SERVER_URL${cartItem.productImages.safeElementAt(0)}'),
                           width: 80,
