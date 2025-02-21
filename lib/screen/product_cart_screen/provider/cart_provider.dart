@@ -77,7 +77,7 @@ class CartProvider extends ChangeNotifier {
           myCartItems.map((cartItem) => cartItem.productId).toList();
 
       Map<String, dynamic> couponData = {
-        'couponCode': couponController.text,
+        'couponCode': couponController.text.trim(),
         'purchaseAmount': getCartSubTotal(),
         'productIds': productIds,
       };

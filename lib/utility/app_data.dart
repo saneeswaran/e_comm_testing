@@ -5,7 +5,6 @@ import 'bottom_navy_bar_item.dart';
 class AppData {
   const AppData._();
 
-
   static List<Color> randomColors = [
     const Color(0xFFFCE4EC),
     const Color(0xFFF3E5F5),
@@ -45,10 +44,14 @@ class AppData {
       Color(0xFFEC6813),
     ),
     const BottomNavBarItem(
+      "Notifications",
+      Icon(Icons.notifications),
+      Color(0xFFEC6813),
+    ),
+    const BottomNavBarItem(
       "Profile",
       Icon(Icons.person),
       Color(0xFFEC6813),
     ),
   ];
-
 }

@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:nexara_cart/screen/notification_screen/notification_screen.dart';
 
 import '../../../utility/app_data.dart';
 import '../../../widget/page_wrapper.dart';
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
     ProductListScreen(),
     FavoriteScreen(),
     CartScreen(),
+    NotificationScreen(),
     ProfileScreen()
   ];
 

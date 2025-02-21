@@ -3,8 +3,8 @@
 // which looks something like this 192.168.0.XX and paste in MAIN_URL
 // for virtual emulators you should use https://localhost:8080 instead
 // TODO: change according to yours
-const SERVER_URL = 'http://192.168.1.5:3000';
-const ONESIGNAL_APP_ID = 'YOUR_ONE_SIGNAL_APP_ID';
+const SERVER_URL = 'http://192.168.1.4:3000';
+const ONESIGNAL_APP_ID = '6d887551-08fd-4822-ae83-b882fa76001f';
 const CURRENCY_SYMBOL = "₹";
 
 // preference keys, no need to change
@@ -33,3 +33,6 @@ const ORDER_STATUS_PROCESSING = 'Processing';
 const ORDER_STATUS_SHIPPED = 'Shipped';
 const ORDER_STATUS_DELIVERED = 'Delivered';
 const ORDER_STATUS_CANCELLED = 'Cancelled';
+
+//image
+const String noNotifications = 'assets/images/notification.png';

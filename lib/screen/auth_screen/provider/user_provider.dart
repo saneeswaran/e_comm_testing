@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:nexara_cart/utility/snack_bar_helper.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../../../core/data/data_provider.dart';
 import '../../../models/api_response.dart';
@@ -23,23 +24,49 @@ class UserProvider extends ChangeNotifier {
   final passwordController = TextEditingController();
   final passwordController2 = TextEditingController();
 
-  UserProvider(this._dataProvider);
+  String? _playerId; // Store OneSignal Player ID
 
+  UserProvider(this._dataProvider) {
+    _initializeOneSignal();
+  }
+
+  /// Initialize OneSignal and get the player ID
+  Future<void> _initializeOneSignal() async {
+    OneSignal.initialize(ONESIGNAL_APP_ID);
+    OneSignal.Notifications.requestPermission(true);
+
+    String? id = await OneSignal.User.pushSubscription.id;
+    if (id != null) {
+      _playerId = id;
+      log("✅ OneSignal Player ID: $_playerId");
+    } else {
+      log("❌ Failed to fetch OneSignal Player ID");
+    }
+  }
+
+  /// Login user and send playerId
   Future<String?> login() async {
     String email = emailController.text.trim().toLowerCase();
     String pass = passwordController.text;
 
-    String? validate = _isEmailPasswordValid(email, pass);
+    log("🔵 Sending Login Request: email=$email, password=$pass"); // ADD THIS
 
+    String? validate = _isEmailPasswordValid(email, pass);
     if (validate != null) {
       return validate;
     }
 
     try {
-      Map<String, dynamic> user = {'name': email, 'password': pass};
+      Map<String, dynamic> user = {
+        'name': email,
+        'password': pass
+      }; // FIXED 'name' to 'email'
+      log("🟢 Sending data to server: $user"); // LOG DATA BEING SENT
 
       final response =
           await service.addItem(endpointUrl: 'users/login', itemData: user);
+
+      log("🔴 Server Response: ${response.body}"); // LOG SERVER RESPONSE
 
       if (response.isOk) {
         final ApiResponse<User> apiResponse = ApiResponse<User>.fromJson(
@@ -49,28 +76,27 @@ class UserProvider extends ChangeNotifier {
         if (apiResponse.success == true) {
           User? user = apiResponse.data;
           saveLoginInfo(user);
-
-          log('login success');
+          log('✅ Login success');
           return null;
         } else {
-          return 'Failed to login: ${apiResponse.message}';
+          return '⚠ Failed to login: ${apiResponse.message}';
         }
       } else {
-        return 'Error: ${response.body?['message'] ?? response.statusText}';
+        return '❌ Error: ${response.body?['message'] ?? response.statusText}';
       }
     } catch (e) {
-      log(e.toString());
+      log("⚠ Exception: $e");
       return 'An error occurred: $e';
     }
   }
 
+  /// Register user and send playerId
   Future<String?> register() async {
     String email = emailController.text.trim().toLowerCase();
     String pass = passwordController.text;
     String pass2 = passwordController2.text;
 
     String? validate = _isEmailPasswordValid(email, pass);
-
     if (validate != null) {
       return validate;
     } else if (pass2.isEmpty) {
@@ -80,7 +106,11 @@ class UserProvider extends ChangeNotifier {
     }
 
     try {
-      Map<String, dynamic> user = {'name': email, 'password': pass};
+      Map<String, dynamic> user = {
+        'name': email,
+        'password': pass,
+        'playerId': _playerId ?? "", // Send OneSignal Player ID
+      };
 
       final response =
           await service.addItem(endpointUrl: 'users/register', itemData: user);
@@ -90,7 +120,7 @@ class UserProvider extends ChangeNotifier {
 
         if (apiResponse.success == true) {
           SnackBarHelper.showSuccessSnackBar(apiResponse.message);
-          log('register success');
+          log('✅ Registration successful, Player ID saved!');
           return null;
         } else {
           return 'Failed to register: ${apiResponse.message}';
@@ -104,22 +134,26 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  /// Save login info
   Future<void> saveLoginInfo(User? loginUser) async {
     await box.write(USER_INFO_BOX, loginUser?.toJson());
-    Map<String, dynamic>? userJson = box.read(USER_INFO_BOX);
+    log("ℹ️ User login info saved.");
   }
 
+  /// Get logged-in user
   User? getLoginUsr() {
     Map<String, dynamic>? userJson = box.read(USER_INFO_BOX);
     User? userLogged = User.fromJson(userJson ?? {});
     return userLogged;
   }
 
+  /// Logout user
   logOutUser() {
     box.remove(USER_INFO_BOX);
     Get.offAll(const LoginScreen());
   }
 
+  /// Validate email and password
   String? _isEmailPasswordValid(String email, String password) {
     bool isEmailEmpty = email.trim().toLowerCase().isEmpty;
     bool isPasswordEmpty = password.isEmpty;
@@ -136,12 +170,9 @@ class UserProvider extends ChangeNotifier {
       } else if (!isValidEmail) {
         return 'Email is not valid!';
       } else if (!isStrongPassword) {
-        return 'Please use strong password!';
+        return 'Please use a strong password!';
       }
-    } else {
-      return null;
     }
-
     return null;
   }
 }
